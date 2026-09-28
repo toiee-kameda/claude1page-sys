@@ -10,6 +10,9 @@ This is an unofficial, community-created project and is not affiliated with, end
 
 ## 更新履歴
 
+- 2026年 9月28日:
+  - CLAUDE.md から「ローカルでの表示確認」セクションを削除。`.claude/launch.json`・`.vscode/settings.json`・README に同じ情報があり、毎セッション読み込まれる CLAUDE.md に置く必要がないため（人向けの説明は README の「ローカルでの表示確認」に残っています）
+
 - 2026年 9月17日:
   - `one-page-site-builder` スキルの Lucide v1 改名表を修正。表にあった `face-smiling` / `text-align-left` は v1.32.0 に存在せず描画されない名前だった（実機確認）。旧名がエイリアスとして残っていることが分かったため、表を撤去し「旧名のまま使ってよい」旨に置き換え
   - `one-page-site-builder` スキルに「作成前の確認（インタビュー）」を追加。新規作成時に対象読者・ゴール・印象が不明なら、おすすめ案を 1 つ添えて 1 回にまとめて確認する

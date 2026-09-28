@@ -37,10 +37,3 @@
 技術スタック（使用ライブラリと CDN タグ）、HTML 構造、固定ナビゲーション仕様、セクション構成、画像方針、生成前の確認、生成後の確認は、すべてこのスキルに集約されている。ここには重複して書かない。
 
 画像が必要な場合は **`unsplash-image-finder` スキル**を使って Unsplash から取得する。
-
-## ローカルでの表示確認
-
-- **Claude Code のプレビュー**: `.claude/launch.json` の `Static Site (serve)`（`npx serve public`、ポート 3000）
-- **VS Code の Live Server 拡張**: ポート 5500（`.vscode/settings.json` で `public` をルートに設定済み）
-
-どちらも `public/` を配信する。ポート番号が違うだけで役割は同じ。
