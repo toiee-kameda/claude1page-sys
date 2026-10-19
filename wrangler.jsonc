@@ -1,0 +1,13 @@
+// Cloudflare Workers の設定ファイル
+// public/ の中身を、そのまま静的サイトとして公開する（プログラムは不要）
+{
+  // 公開名（Worker 名）。公開 URL の先頭になる: https://<name>.<アカウント名>.workers.dev
+  // "rename-me" のままなら、Claude Code が GitHub のリポジトリ名に合わせるよう提案します
+  // 英小文字・数字・ハイフンのみ（63 文字以内）
+  "name": "rename-me",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "404-page"
+  }
+}

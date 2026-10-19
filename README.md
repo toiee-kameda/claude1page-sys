@@ -1,6 +1,6 @@
 # Claude1page
 
-Claude Code を使って、シンプルで、モダンで、美しい、ワンページで完結するWebページを作るためのスターターキットです。Cloudflare Pagesで簡単に公開できるように設計されています。
+Claude Code を使って、シンプルで、モダンで、美しい、ワンページで完結するWebページを作るためのスターターキットです。Cloudflare Workers で簡単に公開できるように設計されています。
 
 ## 免責事項（Disclaimer）
 
@@ -9,6 +9,12 @@ Claude Code を使って、シンプルで、モダンで、美しい、ワン�
 This is an unofficial, community-created project and is not affiliated with, endorsed by, or sponsored by Anthropic PBC. Claude® is a registered trademark of Anthropic PBC.
 
 ## 更新履歴
+
+- 2026年10月19日:
+  - 公開先を Cloudflare Pages から **Cloudflare Workers**（静的アセット）に変更。`wrangler.jsonc` を追加し、`public/` をそのまま公開する設定にした
+  - 公開名（Worker 名）は `wrangler.jsonc` の `name` で決まる。仮の `rename-me` のままだと、Claude Code が起動時にリポジトリ名へ合わせるよう提案する（`.claude/hooks/check-worker-name.sh`）
+  - `.gitignore` に `.wrangler/` と `.dev.vars*` を追加
+  - アップデートスクリプトは `wrangler.jsonc` を**まだ無い場合だけ**追加する（設定済みの公開名を上書きしない）
 
 - 2026年 9月28日:
   - CLAUDE.md から「ローカルでの表示確認」セクションを削除。`.claude/launch.json`・`.vscode/settings.json`・README に同じ情報があり、毎セッション読み込まれる CLAUDE.md に置く必要がないため（人向けの説明は README の「ローカルでの表示確認」に残っています）
@@ -187,7 +193,7 @@ Webページを作成してください。
 
 ```
 claude1page/
-├── public/             # Cloudflare Pages 公開用ディレクトリ（成果物はここに作られる）
+├── public/             # 公開用ディレクトリ（成果物はここに作られる）
 │   └── assets/         # CSS、JS、画像、フォントなどの静的ファイル
 ├── project-docs/       # プロジェクト関連ドキュメント
 ├── scripts/            # アップデートスクリプト
@@ -196,6 +202,8 @@ claude1page/
 ├── .claude/
 │   ├── settings.json   # Claude Code設定（権限の許可リスト）
 │   ├── launch.json     # プレビュー用サーバー設定（ポート3000）
+│   ├── hooks/
+│   │   └── check-worker-name.sh  # 公開名が未設定なら知らせるフック
 │   └── skills/         # スキル定義
 │       ├── one-page-site-builder/
 │       │   └── SKILL.md                  # ワンページサイト生成スキル（技術仕様・ナビ仕様・生成後の確認）
@@ -208,6 +216,7 @@ claude1page/
 │           └── references/setup.md       # APIキー設定ガイド
 ├── .vscode/
 │   └── settings.json   # VS Code Live Server 設定（ポート5500）
+├── wrangler.jsonc      # Cloudflare Workers の設定（公開名・公開フォルダ）
 ├── CLAUDE.md           # Claude Code用の指示書
 ├── .env.local.example  # API設定テンプレート
 ├── LICENSE             # MIT License
@@ -223,17 +232,29 @@ claude1page/
 
 ポート番号が違うだけで役割は同じです。両方を同時に使っても構いません。
 
-## Cloudflare Pagesでの公開
+## Cloudflare Workers での公開
 
-1. Cloudflareにログイン
+### (1) 公開名を決める
+
+公開 URL は `https://<公開名>.<アカウント名>.workers.dev` になります。公開名は **GitHub のリポジトリ名と同じ** にするのがおすすめです。
+
+- テンプレートからリポジトリを作るときに、英小文字・数字・ハイフンだけの名前を付けておく（例: `kameda-cafe`）
+- `wrangler.jsonc` の `"name": "rename-me"` を、その名前に書き換える。Claude Code を起動すると「公開名が未設定です」と提案してくれるので、了承すれば書き換えてくれます
+- 独自ドメインを使う場合も、公開名は管理用の名前として残ります
+
+### (2) Cloudflare に接続する
+
+1. Cloudflare にログイン
 2. コンピューティングとAI > Workers & Pages を選択
-3. アプリケーションを作成 > Pagesタブ をクリック
-4. 既存のGitリポジトリをインポートするを選び、リポジトリを選ぶ
-5. 公開フォルダに、 `public` を設定する
-6. Deploy
-7. その後、必要に応じて、カスタムドメインなどを設定する
+3. アプリケーションを作成 > 「リポジトリをインポート」（Git リポジトリに接続）を選び、GitHub のリポジトリを選ぶ
+4. プロジェクト名（Worker 名）を、`wrangler.jsonc` の `name` と同じにする
+5. ビルドコマンドは空のまま、デプロイコマンドは `npx wrangler deploy` のままでデプロイ
+6. その後、必要に応じて、カスタムドメインなどを設定する
 
-※ Cloudflare でドメインを管理すれば、すごく簡単にできるようになります
+以後は GitHub に push するたびに自動で公開されます。
+
+※ Worker 名と `wrangler.jsonc` の `name` が食い違った場合、Cloudflare が `name` を直す Pull Request を送ってきます。マージすれば揃います
+※ Cloudflare でドメインを管理すれば、独自ドメインの設定がすごく簡単になります
 
 ## アップデート方法
 

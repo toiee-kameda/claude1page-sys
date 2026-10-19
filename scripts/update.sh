@@ -46,6 +46,7 @@ echo -e "${YELLOW}ディレクトリを準備中...${NC}"
 mkdir -p .claude/skills/unsplash-image-finder
 mkdir -p .claude/skills/unsplash-image-finder/references
 mkdir -p .claude/skills/one-page-site-builder
+mkdir -p .claude/hooks
 mkdir -p scripts
 mkdir -p .vscode
 echo "  done"
@@ -77,15 +78,22 @@ download ".claude/skills/unsplash-image-finder/unsplash-track.sh"
 download ".claude/skills/unsplash-image-finder/references/setup.md"
 download ".claude/skills/one-page-site-builder/SKILL.md"
 download ".claude/skills/one-page-site-builder/brand-icon.sh"
+download ".claude/hooks/check-worker-name.sh"
 download "scripts/update.sh"
 download "scripts/update.ps1"
 download "README.md"
 download "LICENSE"
 download ".vscode/settings.json"
 
+# wrangler.jsonc は公開名を含むので、まだ無い場合だけ追加する
+if [ ! -f "wrangler.jsonc" ]; then
+    download "wrangler.jsonc"
+fi
+
 # 実行権限を付与
 chmod +x scripts/update.sh 2>/dev/null || true
 chmod +x .claude/skills/one-page-site-builder/brand-icon.sh 2>/dev/null || true
+chmod +x .claude/hooks/check-worker-name.sh 2>/dev/null || true
 chmod +x .claude/skills/unsplash-image-finder/_load-env.sh 2>/dev/null || true
 chmod +x .claude/skills/unsplash-image-finder/unsplash-search.sh 2>/dev/null || true
 chmod +x .claude/skills/unsplash-image-finder/unsplash-health-check.sh 2>/dev/null || true

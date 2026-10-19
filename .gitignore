@@ -141,3 +141,6 @@ dev-tools/package-lock.json
 
 # Project specific - development files
 /prompt*.md
+# Cloudflare Wrangler
+.wrangler/
+.dev.vars*

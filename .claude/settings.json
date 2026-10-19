@@ -7,5 +7,17 @@
       "Bash(bash *.claude/skills/one-page-site-builder/brand-icon.sh*)",
       "Bash(npx serve public:*)"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-worker-name.sh\""
+          }
+        ]
+      }
+    ]
   }
 }

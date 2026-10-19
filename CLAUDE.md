@@ -5,12 +5,13 @@
 - 非エンジニア、非デザイナーが、AI Agent (Claude Code) を使って Web サイトを構築する
 - 構築する Web サイトは「ワンページ完結」とする。1 ページに必要な情報をまとめて提供する
 - ブログなどは、別のサービス（Substack や note.com など）を利用することを前提とする
-- デプロイ先は **Cloudflare Pages**
+- デプロイ先は **Cloudflare Workers**（静的アセットのみ。GitHub 連携の Workers Builds で公開）
 
 ## ファイル構成
 
 - `project-docs/` : Web ページの内容や、その他作成に必要なドキュメントを格納
-- `public/` : Cloudflare Pages で公開設定をするディレクトリ。ここに成果物を入れる
+- `public/` : 公開するディレクトリ（`wrangler.jsonc` の `assets.directory`）。ここに成果物を入れる
+- `wrangler.jsonc` : Workers の設定。`name` が公開名（Worker 名）
 - `public/assets/` : 画像、CSS、JavaScript などの生成物の置き場
 
 # 作成のためのルール
@@ -30,6 +31,14 @@
 - **Web ページのチェック**: 文法エラー、不要な記述、大きすぎる画像などがあれば改善方法をアドバイスする
 
 作成・編集したあとは、**必ずプレビューで表示を確認してから完了とする**（`.claude/launch.json` の `Static Site (serve)` を起動し、コンソールエラー・404・レイアウト崩れを確認する）。手順は `one-page-site-builder` スキルの「生成後の確認」にある。ユーザーに確認を丸投げしない。
+
+## 公開名（Worker 名）
+
+`wrangler.jsonc` の `name` は公開 URL（`https://<name>.<アカウント名>.workers.dev`）の先頭になる。原則として **GitHub リポジトリ名 ＝ Worker 名** で揃える。
+
+- `name` が仮の `"rename-me"` のままだと SessionStart フックが知らせてくる。そのときは、最初の返答で 1 回だけ「公開名をリポジトリ名の候補に変えるか」を確認し、了承されたら `name` を書き換える（断られたら、そのセッションでは繰り返さない）
+- 使える文字は英小文字・数字・ハイフンのみ、63 文字以内
+- 名前を変えると workers.dev の URL も変わる。すでに Cloudflare で公開済みなら、ダッシュボードの Worker 名と同じにする（違うと、Cloudflare が `name` を直す PR を送ってくる）
 
 ## ワンページ Web サイトの生成方法
 

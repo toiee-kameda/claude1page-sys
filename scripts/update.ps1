@@ -43,7 +43,7 @@ Write-Host "  done"
 # --- ディレクトリ作成 ---
 Write-Host "ディレクトリを準備中..." -ForegroundColor Yellow
 
-$dirs = @(".claude\skills\unsplash-image-finder", ".claude\skills\unsplash-image-finder\references", ".claude\skills\one-page-site-builder", "scripts", ".vscode")
+$dirs = @(".claude\skills\unsplash-image-finder", ".claude\skills\unsplash-image-finder\references", ".claude\skills\one-page-site-builder", ".claude\hooks", "scripts", ".vscode")
 foreach ($d in $dirs) {
     if (-not (Test-Path $d)) { New-Item -ItemType Directory -Path $d -Force | Out-Null }
 }
@@ -81,6 +81,7 @@ $files = @(
     ".claude\skills\unsplash-image-finder\references\setup.md",
     ".claude\skills\one-page-site-builder\SKILL.md",
     ".claude\skills\one-page-site-builder\brand-icon.sh",
+    ".claude\hooks\check-worker-name.sh",
     "scripts\update.sh",
     "scripts\update.ps1",
     "README.md",
@@ -90,6 +91,11 @@ $files = @(
 
 foreach ($file in $files) {
     Download-File -RelPath $file
+}
+
+# wrangler.jsonc は公開名を含むので、まだ無い場合だけ追加する
+if (-not (Test-Path "wrangler.jsonc")) {
+    Download-File -RelPath "wrangler.jsonc"
 }
 
 # --- 完了 ---
