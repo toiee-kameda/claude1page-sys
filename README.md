@@ -10,6 +10,14 @@ This is an unofficial, community-created project and is not affiliated with, end
 
 ## 更新履歴
 
+- 2026年10月24日:
+  - 小さなシステム（お知らせ・予約など）を載せられるよう、**Worker 付きの構成**に変更。ページは `public/` から静的に配信し、`/api/*` と `/admin/*` だけ `src/index.ts` で処理する（`wrangler.jsonc` の `run_worker_first`）
+  - `package.json` を復活（`wrangler` を開発用に追加）。Worker のプログラムをローカルで動かし、D1・R2 を使うために必要なため、「外部依存ゼロ」の方針から変更した。最初に `npm install` が必要
+  - プレビューを `npx serve public`（ポート 3000）から `wrangler dev`（ポート 8787）に変更。`/api/*` も本番と同じように動く
+  - `/admin` は管理画面を認証付きで作るまで 404 を返す
+  - D1・R2 の設定例を `wrangler.jsonc` にコメントで追加
+  - ⚠️ `scripts/update.sh` / `update.ps1` はまだ元の claude1page 向けのままです。実行すると `package.json` が削除され、設定が静的サイト版に戻るので、このリポジトリでは実行しないでください
+
 - 2026年10月19日:
   - 公開先を Cloudflare Pages から **Cloudflare Workers**（静的アセット）に変更。`wrangler.jsonc` を追加し、`public/` をそのまま公開する設定にした
   - 公開名（Worker 名）は `wrangler.jsonc` の `name` で決まる。仮の `rename-me` のままだと、Claude Code が起動時にリポジトリ名へ合わせるよう提案する（`.claude/hooks/check-worker-name.sh`）
@@ -96,6 +104,7 @@ This is an unofficial, community-created project and is not affiliated with, end
     - Prettier - Code formatter
 - [Github.com](https://github.com/)
 - Gitのインストールと設定
+- **Node.js**（Worker を動かす `wrangler` に必要。macOS なら `mise use -g node@lts` などでインストール）
 - [Cloudflare](https://www.cloudflare.com/ja-jp/)
 - [Unsplash開発者登録](https://unsplash.com/oauth/applications)
 
@@ -201,7 +210,7 @@ claude1page/
 │   └── update.ps1      # Windows用
 ├── .claude/
 │   ├── settings.json   # Claude Code設定（権限の許可リスト）
-│   ├── launch.json     # プレビュー用サーバー設定（ポート3000）
+│   ├── launch.json     # プレビュー用サーバー設定（wrangler dev、ポート8787）
 │   ├── hooks/
 │   │   └── check-worker-name.sh  # 公開名が未設定なら知らせるフック
 │   └── skills/         # スキル定義
@@ -216,7 +225,12 @@ claude1page/
 │           └── references/setup.md       # APIキー設定ガイド
 ├── .vscode/
 │   └── settings.json   # VS Code Live Server 設定（ポート5500）
-├── wrangler.jsonc      # Cloudflare Workers の設定（公開名・公開フォルダ）
+├── src/
+│   └── index.ts        # Worker の入口（/api/* と /admin/* を処理）
+├── wrangler.jsonc      # Cloudflare Workers の設定（公開名・公開フォルダ・D1/R2）
+├── package.json        # wrangler と実行コマンド（npm run dev など）
+├── tsconfig.json       # TypeScript の設定
+├── worker-configuration.d.ts  # wrangler types が生成する型定義（手で編集しない）
 ├── CLAUDE.md           # Claude Code用の指示書
 ├── .env.local.example  # API設定テンプレート
 ├── LICENSE             # MIT License
@@ -225,12 +239,12 @@ claude1page/
 
 ## ローカルでの表示確認
 
-作ったページをブラウザで確認する方法は2つあります。どちらも `public/` を配信します。
+最初に一度だけ `npm install` を実行してください（Worker を動かす `wrangler` が入ります）。
 
-- **Claude Code のプレビュー機能**: `.claude/launch.json` の `Static Site (serve)` を使います（`npx serve public`、http://localhost:3000 ）。Claude 自身がここでページを開いて、コンソールエラーや画像のリンク切れを自分で確認します
-- **VS Code の Live Server 拡張**: `.vscode/settings.json` で `public` をルートに設定済みです（http://localhost:5500 ）
+作ったページをブラウザで確認する方法は2つあります。
 
-ポート番号が違うだけで役割は同じです。両方を同時に使っても構いません。
+- **Claude Code のプレビュー機能**: `.claude/launch.json` の `Worker (wrangler dev)` を使います（`npx wrangler dev`、http://localhost:8787 ）。ページに加えて `/api/*` などのシステム部分も本番と同じように動きます。Claude 自身がここでページを開いて、コンソールエラーや画像のリンク切れを自分で確認します
+- **VS Code の Live Server 拡張**: `.vscode/settings.json` で `public` をルートに設定済みです（http://localhost:5500 ）。見た目の確認だけならこちらでも構いませんが、`/api/*` は動きません
 
 ## Cloudflare Workers での公開
 

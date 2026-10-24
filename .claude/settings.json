@@ -5,7 +5,13 @@
       "Bash(bash *.claude/skills/unsplash-image-finder/unsplash-track.sh*)",
       "Bash(bash *.claude/skills/unsplash-image-finder/unsplash-health-check.sh*)",
       "Bash(bash *.claude/skills/one-page-site-builder/brand-icon.sh*)",
-      "Bash(npx serve public:*)"
+      "Bash(npx wrangler dev:*)",
+      "Bash(npx wrangler types:*)",
+      "Bash(npx wrangler d1 migrations apply * --local:*)",
+      "Bash(npm install)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run types:*)",
+      "Bash(npm run db:migrate:local:*)"
     ]
   },
   "hooks": {

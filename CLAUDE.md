@@ -5,14 +5,17 @@
 - 非エンジニア、非デザイナーが、AI Agent (Claude Code) を使って Web サイトを構築する
 - 構築する Web サイトは「ワンページ完結」とする。1 ページに必要な情報をまとめて提供する
 - ブログなどは、別のサービス（Substack や note.com など）を利用することを前提とする
-- デプロイ先は **Cloudflare Workers**（静的アセットのみ。GitHub 連携の Workers Builds で公開）
+- デプロイ先は **Cloudflare Workers**（静的アセット ＋ Worker。GitHub 連携の Workers Builds で公開）
+- ページは `public/` から静的に配信し、`/api/*` と `/admin/*` だけを Worker（`src/index.ts`）で処理する
 
 ## ファイル構成
 
 - `project-docs/` : Web ページの内容や、その他作成に必要なドキュメントを格納
 - `public/` : 公開するディレクトリ（`wrangler.jsonc` の `assets.directory`）。ここに成果物を入れる
-- `wrangler.jsonc` : Workers の設定。`name` が公開名（Worker 名）
 - `public/assets/` : 画像、CSS、JavaScript などの生成物の置き場
+- `src/index.ts` : Worker の入口。API や管理画面の処理を書く
+- `wrangler.jsonc` : Workers の設定。`name` が公開名（Worker 名）。D1・R2 などを使うときもここに書く
+- `worker-configuration.d.ts` : `wrangler types` が生成する型定義。`wrangler.jsonc` を変えたら `npm run types` で作り直す（手で編集しない）
 
 # 作成のためのルール
 
@@ -30,7 +33,7 @@
 - **Web ページの編集**: 編集箇所と依頼を理解して編集する
 - **Web ページのチェック**: 文法エラー、不要な記述、大きすぎる画像などがあれば改善方法をアドバイスする
 
-作成・編集したあとは、**必ずプレビューで表示を確認してから完了とする**（`.claude/launch.json` の `Static Site (serve)` を起動し、コンソールエラー・404・レイアウト崩れを確認する）。手順は `one-page-site-builder` スキルの「生成後の確認」にある。ユーザーに確認を丸投げしない。
+作成・編集したあとは、**必ずプレビューで表示を確認してから完了とする**（`.claude/launch.json` の `Worker (wrangler dev)` を起動し、コンソールエラー・404・レイアウト崩れを確認する。API を作った・変えたときは、その応答も実際に呼んで確認する）。`node_modules/` が無ければ先に `npm install` を実行する。手順は `one-page-site-builder` スキルの「生成後の確認」にある。ユーザーに確認を丸投げしない。
 
 ## 公開名（Worker 名）
 

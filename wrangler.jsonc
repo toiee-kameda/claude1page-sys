@@ -1,13 +1,37 @@
 // Cloudflare Workers の設定ファイル
-// public/ の中身を、そのまま静的サイトとして公開する（プログラムは不要）
+// public/ の中身は静的サイトとしてそのまま公開し、/api/* と /admin/* だけプログラム（src/index.ts）で処理する
 {
+  "$schema": "./node_modules/wrangler/config-schema.json",
   // 公開名（Worker 名）。公開 URL の先頭になる: https://<name>.<アカウント名>.workers.dev
   // "rename-me" のままなら、Claude Code が GitHub のリポジトリ名に合わせるよう提案します
   // 英小文字・数字・ハイフンのみ（63 文字以内）
   "name": "rename-me",
+  "main": "src/index.ts",
   "compatibility_date": "2026-10-01",
   "assets": {
     "directory": "./public",
-    "not_found_handling": "404-page"
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    // ここに一致するパスだけ src/index.ts を通す。それ以外は public/ のファイルをそのまま返す
+    // 末尾の / が無い /api・/admin も含めないと、public/admin.html などが Worker を通らずに表示されてしまう
+    "run_worker_first": ["/api", "/api/*", "/admin", "/admin/*"]
+  },
+  // 公開後のログとエラーを Cloudflare ダッシュボードで見られるようにする
+  "observability": {
+    "enabled": true
   }
+
+  // --- 必要になったら使う（記入例。使うときはコメントを外し、上の行末にカンマを付ける） ---
+  //
+  // D1（データベース）: お知らせ・予約などのデータを保存する
+  // 作成: npx wrangler d1 create <データベース名>  → 表示された database_id を書き込む
+  // "d1_databases": [
+  //   { "binding": "DB", "database_name": "<データベース名>", "database_id": "<ID>", "migrations_dir": "./migrations" }
+  // ],
+  //
+  // R2（ファイル置き場）: 画像や添付ファイルを保存する
+  // 作成: npx wrangler r2 bucket create <バケット名>
+  // "r2_buckets": [
+  //   { "binding": "BUCKET", "bucket_name": "<バケット名>" }
+  // ]
 }

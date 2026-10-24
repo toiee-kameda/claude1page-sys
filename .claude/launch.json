@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "Static Site (serve)",
+      "name": "Worker (wrangler dev)",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "public", "--listen", "3000"],
-      "port": 3000
+      "runtimeArgs": ["wrangler", "dev", "--port", "8787"],
+      "port": 8787
     }
   ]
 }

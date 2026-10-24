@@ -169,8 +169,8 @@ Hero の上では背景に溶け込んで邪魔をせず、スクロールして
 
 HTML を書いて終わりにしない。**ユーザーに「ブラウザで確認してください」と丸投げしない。**
 
-1. プレビューサーバを起動する（`.claude/launch.json` の `Static Site (serve)`。Claude Code のプレビュー機能がこの設定を読む）
-   - プレビュー機能が使えない環境（ターミナル版の Claude Code など）では `npx serve public` を実行し、`http://localhost:3000` を開いてもらうようユーザーに伝える。そのうえで、ソースから確認できる範囲（CDN の URL・`data-lucide` 名・aria 属性・画像 URL の到達性）は自分で確認する
+1. プレビューサーバを起動する（`.claude/launch.json` の `Worker (wrangler dev)`。Claude Code のプレビュー機能がこの設定を読む。`node_modules/` が無ければ先に `npm install`）
+   - プレビュー機能が使えない環境（ターミナル版の Claude Code など）では `npx wrangler dev` を実行し、`http://localhost:8787` を開いてもらうようユーザーに伝える。そのうえで、ソースから確認できる範囲（CDN の URL・`data-lucide` 名・aria 属性・画像 URL の到達性）は自分で確認する
 2. ページを開いて、以下を確認する
    - **コンソールエラーがないか**
    - **ネットワークログに 404 がないか**（特に Unsplash 画像・CDN のリンク切れ）

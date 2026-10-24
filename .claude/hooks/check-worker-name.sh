@@ -11,7 +11,7 @@ current=$(grep -E '^[[:space:]]*"name"[[:space:]]*:' wrangler.jsonc | head -1 | 
 remote=$(git remote get-url origin 2>/dev/null)
 # テンプレート本体では知らせない
 case "$remote" in
-  *toiee-lab/claude1page*) exit 0 ;;
+  *toiee-lab/claude1page*|*toiee-kameda/claude1page-sys*) exit 0 ;;
 esac
 
 # リポジトリ名から公開名の候補を作る（英小文字・数字・ハイフン、63 文字以内）
