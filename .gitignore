@@ -144,3 +144,4 @@ dev-tools/package-lock.json
 # Cloudflare Wrangler
 .wrangler/
 .dev.vars*
+!.dev.vars.example

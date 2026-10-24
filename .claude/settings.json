@@ -8,9 +8,12 @@
       "Bash(npx wrangler dev:*)",
       "Bash(npx wrangler types:*)",
       "Bash(npx wrangler d1 migrations apply * --local:*)",
+      "Bash(npx wrangler d1 migrations create:*)",
+      "Bash(npx wrangler d1 execute * --local:*)",
       "Bash(npm install)",
       "Bash(npm run dev:*)",
       "Bash(npm run types:*)",
+      "Bash(npm run check:*)",
       "Bash(npm run db:migrate:local:*)"
     ]
   },

@@ -63,6 +63,12 @@ D1・R2 などを使った小さなシステム（お知らせ、シンプルな
 
 ## 進め方
 
-1. 1〜4（Worker が動く最小構成）
-2. 5（スキル）と 7（CLAUDE.md・README・update スクリプト）
-3. 6（デプロイ手順）
+1. 1〜4（Worker が動く最小構成）— 済
+2. 5（スキル）と 7（CLAUDE.md・README・update スクリプト）— 済
+3. 6（デプロイ手順）— 未着手
+
+## 実装中に分かったこと
+
+- 静的ファイル（`assets`）を持つ Worker には `ctx.access` が渡されない。Cloudflare Access で管理画面を守る場合は、`Cf-Access-Jwt-Assertion` の JWT を Worker で検証する（`worker-system-builder/references/admin-auth.md`）
+- Worker の設定画面の「Enable Cloudflare Access」は Worker 全体（公開ページも含む）を守ってしまう。`/admin` だけ守るには、Zero Trust で self-hosted アプリケーションをパス指定で作る
+- wrangler には D1・R2 の自動作成（ID を書かずにデプロイすると作られる）があるが、ダッシュボード／GitHub 経由のデプロイでは ID がリポジトリに書き戻されない。マイグレーションのコマンドで DB を指定しにくくなるため、スキルでは `wrangler d1 create` で作って ID を書く方式にした。6 で改めて検討する

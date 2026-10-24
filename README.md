@@ -1,6 +1,10 @@
-# Claude1page
+# Claude1page-sys
 
-Claude Code を使って、シンプルで、モダンで、美しい、ワンページで完結するWebページを作るためのスターターキットです。Cloudflare Workers で簡単に公開できるように設計されています。
+Claude Code を使って、シンプルで、モダンで、美しい、ワンページで完結するWebページに、**お知らせ・予約・問い合わせフォームなどの小さなシステム**を付けて公開するためのスターターキットです。Cloudflare Workers（D1・R2）で動かすように設計されています。
+
+[claude1page](https://github.com/toiee-lab/claude1page)（静的なワンページを作って公開するだけのテンプレート）から派生しました。ページだけで十分なら、そちらの方がシンプルです。
+
+データベースのテーブルや使う道具は案件ごとに Claude が設計します。このテンプレートが用意するのは、どの案件でも同じ部分（Worker の入口、ローカルでの確認、管理画面の守り方、秘密情報の扱い）と、そのための作り方の指示（スキル）です。
 
 ## 免責事項（Disclaimer）
 
@@ -16,7 +20,10 @@ This is an unofficial, community-created project and is not affiliated with, end
   - プレビューを `npx serve public`（ポート 3000）から `wrangler dev`（ポート 8787）に変更。`/api/*` も本番と同じように動く
   - `/admin` は管理画面を認証付きで作るまで 404 を返す
   - D1・R2 の設定例を `wrangler.jsonc` にコメントで追加
-  - ⚠️ `scripts/update.sh` / `update.ps1` はまだ元の claude1page 向けのままです。実行すると `package.json` が削除され、設定が静的サイト版に戻るので、このリポジトリでは実行しないでください
+  - `worker-system-builder` スキルを追加。要件の聞き取り、D1・R2 の使い方、管理画面の認証（Cloudflare Access / パスワード）、秘密情報、公開フォームの守り、個人情報、確認手順をまとめた。作例として「お知らせ」「シンプルな予約」を同梱（DB 定義は固定せず、一例として示す）
+  - CLAUDE.md を「ワンページ＋小さなシステム」の前提に書き換え、セキュリティのルールを追加
+  - アップデートスクリプトの取得元をこのリポジトリ（`toiee-kameda/claude1page-sys`）に変更。`package.json` を削除しないようにし、`wrangler.jsonc`・`package.json`・`tsconfig.json`・`src/index.ts` は**まだ無い場合だけ**追加する
+  - `.gitignore` で `.dev.vars.example` を除外しないようにした
 
 - 2026年10月19日:
   - 公開先を Cloudflare Pages から **Cloudflare Workers**（静的アセット）に変更。`wrangler.jsonc` を追加し、`public/` をそのまま公開する設定にした
@@ -149,7 +156,7 @@ cp .env.local.example .env.local
    
    フォルダ内でリポジトリをクローン（展開する）
    ```bash
-   git clone https://github.com/toiee-lab/claude1page.git .
+   git clone https://github.com/toiee-kameda/claude1page-sys.git .
    ```
 
 2. **リポジトリの初期化**
@@ -158,7 +165,12 @@ cp .env.local.example .env.local
    git init
    ```
 
-3. **Unsplashで画像が検索できるかテストする**
+3. **Worker を動かす道具（wrangler）を入れる**
+   ```bash
+   npm install
+   ```
+
+4. **Unsplashで画像が検索できるかテストする**
    以下のコマンドでテストしてください。
 
    ```bash
@@ -168,7 +180,7 @@ cp .env.local.example .env.local
 以上で完了です。
 
 > **Claude Code on the Web（クラウドサンドボックス環境）でも動作します。**
-> Node.js・npm は不要です。シェルスクリプトがプロキシ環境を自動検出し、`curl` 経由で Unsplash API にアクセスします。
+> 画像検索のシェルスクリプトはプロキシ環境を自動検出し、`curl` 経由で Unsplash API にアクセスします。Worker の確認には `npm install` が必要です（Claude が必要に応じて実行します）。
 
 ## ポイント
 
@@ -216,6 +228,9 @@ claude1page/
 │   └── skills/         # スキル定義
 │       ├── one-page-site-builder/
 │       │   └── SKILL.md                  # ワンページサイト生成スキル（技術仕様・ナビ仕様・生成後の確認）
+│       ├── worker-system-builder/
+│       │   ├── SKILL.md                  # システム作成スキル（D1・R2・認証・秘密情報・確認手順）
+│       │   └── references/               # 管理画面の認証、作例（お知らせ・予約）
 │       └── unsplash-image-finder/
 │           ├── SKILL.md                  # 画像検索スキル
 │           ├── _load-env.sh              # APIキー読み込みの共通処理
@@ -267,6 +282,15 @@ claude1page/
 
 以後は GitHub に push するたびに自動で公開されます。
 
+### (3) システムを付けたときに Cloudflare 側でやること
+
+D1・R2・管理画面などを使うと、push だけでは済まない作業が出てきます。Claude が完了時に「Cloudflare 側でやること」として伝えるので、その通りに進めてください。主なものは次の通りです。
+
+- **D1・R2 の作成**: `npx wrangler login` でログインしたあと、Claude の案内に従って作成する（初回だけ）
+- **テーブルの変更の反映**: `npm run db:migrate:remote`（テーブルを追加・変更したときに毎回。push だけでは本番に反映されません）
+- **秘密情報の登録**: `npx wrangler secret put <名前>`、またはダッシュボードの「設定 > 変数とシークレット」
+- **管理画面のログイン設定**: Cloudflare Access を使う場合は、Zero Trust の画面で `/admin` と `/api/admin` を守る設定をする
+
 ※ Worker 名と `wrangler.jsonc` の `name` が食い違った場合、Cloudflare が `name` を直す Pull Request を送ってきます。マージすれば揃います
 ※ Cloudflare でドメインを管理すれば、独自ドメインの設定がすごく簡単になります
 
@@ -282,12 +306,12 @@ claude1page/
 
 **macOS / Linux:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/toiee-lab/claude1page/main/scripts/update.sh | bash
+curl -fsSL https://raw.githubusercontent.com/toiee-kameda/claude1page-sys/main/scripts/update.sh | bash
 ```
 
 **Windows (PowerShell):**
 ```powershell
-irm https://raw.githubusercontent.com/toiee-lab/claude1page/main/scripts/update.ps1 | iex
+irm https://raw.githubusercontent.com/toiee-kameda/claude1page-sys/main/scripts/update.ps1 | iex
 ```
 
 ### (2) 変更点をチェック
@@ -297,9 +321,14 @@ irm https://raw.githubusercontent.com/toiee-lab/claude1page/main/scripts/update.
 アップデートで上書きされるのは以下のファイルです。カスタマイズしている場合は、ご自身の変更を再反映してください。
 
 - `CLAUDE.md`
+- `README.md`
 - `.claude/settings.json`
+- `.claude/launch.json`
 - `.gitignore`
 - `.vscode/settings.json`
+- スキル（`.claude/skills/` 配下）
+
+`wrangler.jsonc`・`package.json`・`tsconfig.json`・`src/` は上書きされません（まだ無い場合だけ追加されます）。アップデート後に `npm install` と `npm run types` を実行してください。
 
 ## ライセンス
 
