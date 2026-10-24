@@ -123,8 +123,14 @@ SQL のルール:
 
 ## 本番への反映
 
-- コードの反映は、これまで通り GitHub に push すると Workers Builds で行われる
-- **D1 のテーブル変更は push だけでは本番に反映されない。** 新しいマイグレーションを作ったら、push の前後にユーザーに `npm run db:migrate:remote` を実行してもらう（Cloudflare へのログインが必要）。そのことを完了報告で必ず伝える
+- **まだ一度も公開していないリポジトリでは、GitHub 連携より先に PC から公開する。** Cloudflare の画面で GitHub のリポジトリを読み込むところから始めると、エラーも出ずにビルドが止まることがある。次の順に進める（README の「Cloudflare Workers での公開」と同じ）
+  1. ユーザーに `npx wrangler login` を実行してもらう（ブラウザでの許可が必要）
+  2. D1・R2 を使うなら作成し、ID を `wrangler.jsonc` に書く。`npm run db:migrate:remote` でテーブルを作る
+  3. `npx wrangler deploy` で公開する（本番への公開なので、実行前にユーザーの了承を得る）
+  4. 秘密情報があれば `npx wrangler secret put <名前>` で登録してもらう。Worker ができてから行う（値はチャットに貼ってもらわない）
+  5. ダッシュボードで、できた Worker の「設定 > ビルド > 接続」から GitHub のリポジトリをつないでもらう。「アプリケーションを作成」から新しく作らない
+- 公開済みなら、コードの反映は GitHub に push すると Workers Builds で行われる
+- **D1 のテーブル変更は push だけでは本番に反映されない。** 新しいマイグレーションを作ったら、push の前に `npm run db:migrate:remote` を実行してもらう（Cloudflare へのログインが必要）。列を足すだけなどの古いコードと両立する変更にしておく。そのことを完了報告で必ず伝える
 - 秘密情報（`ADMIN_PASSWORD` など）や Access の設定は、ユーザーが Cloudflare 側で行う必要がある。手順を短く伝える
 
 ## 生成後の確認

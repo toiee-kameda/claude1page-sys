@@ -18,6 +18,7 @@ This is an unofficial, community-created project and is not affiliated with, end
      各項目には「何を変えたか」に加えて、既存のリポジトリでどう取り込めばよいか（例: wrangler.jsonc の既存の設定に ○○ を足す、スキルを置き換える）を書いてください。 -->
 
 - 2026年10月24日:
+  - [claude1page](https://github.com/toiee-lab/claude1page) をベースに新規作成
   - 小さなシステム（お知らせ・予約など）を載せられるよう、**Worker 付きの構成**に変更。ページは `public/` から静的に配信し、`/api/*` と `/admin/*` だけ `src/index.ts` で処理する（`wrangler.jsonc` の `run_worker_first`）
   - `package.json` を復活（`wrangler` を開発用に追加）。Worker のプログラムをローカルで動かし、D1・R2 を使うために必要なため、「外部依存ゼロ」の方針から変更した。最初に `npm install` が必要
   - プレビューを `npx serve public`（ポート 3000）から `wrangler dev`（ポート 8787）に変更。`/api/*` も本番と同じように動く
@@ -27,80 +28,8 @@ This is an unofficial, community-created project and is not affiliated with, end
   - CLAUDE.md を「ワンページ＋小さなシステム」の前提に書き換え、セキュリティのルールを追加
   - アップデートスクリプト（`scripts/update.sh` / `update.ps1`）を廃止。このテンプレートから作るリポジトリは今の状態が出発点になるため、元の claude1page 向けの移行処理は不要になった。今後の更新は、README の「アップデート方法」にある指示を Claude Code に渡して取り込む（あなたが加えた変更と合わせる判断が必要なため）
   - `.gitignore` で `.dev.vars.example` を除外しないようにした
+  - 公開手順を「PC から `npx wrangler deploy` で 1 回目の公開 → できた Worker に GitHub をつなぐ」順に変更。Cloudflare の画面で GitHub から始めると、エラーも出ずにビルドが止まることがあったため
 
-- 2026年10月19日:
-  - 公開先を Cloudflare Pages から **Cloudflare Workers**（静的アセット）に変更。`wrangler.jsonc` を追加し、`public/` をそのまま公開する設定にした
-  - 公開名（Worker 名）は `wrangler.jsonc` の `name` で決まる。仮の `rename-me` のままだと、Claude Code が起動時にリポジトリ名へ合わせるよう提案する（`.claude/hooks/check-worker-name.sh`）
-  - `.gitignore` に `.wrangler/` と `.dev.vars*` を追加
-  - アップデートスクリプトは `wrangler.jsonc` を**まだ無い場合だけ**追加する（設定済みの公開名を上書きしない）
-
-- 2026年 9月28日:
-  - CLAUDE.md から「ローカルでの表示確認」セクションを削除。`.claude/launch.json`・`.vscode/settings.json`・README に同じ情報があり、毎セッション読み込まれる CLAUDE.md に置く必要がないため（人向けの説明は README の「ローカルでの表示確認」に残っています）
-
-- 2026年 9月17日:
-  - `one-page-site-builder` スキルの Lucide v1 改名表を修正。表にあった `face-smiling` / `text-align-left` は v1.32.0 に存在せず描画されない名前だった（実機確認）。旧名がエイリアスとして残っていることが分かったため、表を撤去し「旧名のまま使ってよい」旨に置き換え
-  - `one-page-site-builder` スキルに「作成前の確認（インタビュー）」を追加。新規作成時に対象読者・ゴール・印象が不明なら、おすすめ案を 1 つ添えて 1 回にまとめて確認する
-  - `.claude/settings.json` に `npx serve public` の実行許可を追加（ターミナル版 Claude Code で「生成後の確認」を行う際に許可プロンプトで止まらないように）
-  - CLAUDE.md の技術スタック列挙を廃止し、スキル参照に一本化（Simple Icons 移行時に CLAUDE.md 側が更新漏れしていたため）
-
-- 2026年 8月19日:
-  - `update.sh` / `update.ps1` が削除済みの `package.json` / `package-lock.json` を取得しようとして毎回ダウンロード失敗していた問題を修正
-  - アップデート対象に `LICENSE` と `.vscode/settings.json` を追加。上書きされるファイルを完了メッセージに明記
-  - 3つの Unsplash スクリプトに重複していた `.env.local` の読み込み処理を `_load-env.sh` に集約。Windows で作成した `.env.local`（CRLF 改行）やクォート付きの記述でも API キーが正しく読めるように修正
-  - `one-page-site-builder` スキルを見直し: 「最低8セクション」の数値ノルマを撤廃（水増し防止）、ナビ仕様を「意図＋必須要件」に整理、全ライブラリの CDN タグと記述位置を明記、**生成後にプレビューで自己確認する手順を追加**
-  - `unsplash-image-finder` スキルの description を日本語化し、既定値と同じで無意味だった `user-invocable: true` を削除
-  - README のファイル構成図を実態に合わせ、ローカル表示確認とライセンスの記載を追加
-  - Lucide をメジャーバージョン **v1.32.0** に更新
-  - ブランドロゴ（SNSアイコン等）は **Simple Icons** から取得する方式に変更。Lucide 公式のガイド（[Brand Logo Statement](https://lucide.dev/brand-logo-statement)）に従った対応
-  - `brand-icon.sh` を追加。Simple Icons の SVG を `fill="currentColor"` 付きで取り出し、HTML に直接貼れる形で出力する（元データには `fill` が無く、そのまま貼ると黒一色になるため）
-  - v1 で名称が変わった Lucide アイコンの対応表を `one-page-site-builder` スキルに追記
-
-- 2026年 4月13日:
-  - `one-page-site-builder` スキルの `references/` 配下4ファイル（tech-stack・navigation-spec・content-structure・image-optimization）を `SKILL.md` に統合・集約
-  - スキルファイルの構成をシンプル化し、参照ファイルなしで完結するように刷新
-  - アップデートスクリプト（`update.sh` / `update.ps1`）で古い `references/` を削除するよう対応
-
-- 2026年 4月10日:
-  - `unsplash-image-finder` の画像検索スクリプトを Node.js (`unsplash-search.js`) からシェルスクリプト (`unsplash-search.sh` / `unsplash-health-check.sh` / `unsplash-track.sh`) に完全移行
-  - Node.js・npm・undici が不要になり、セットアップがシンプル化
-  - プロキシ対応をシェルスクリプト内の `curl` オプションで実装。Claude Code クラウド環境でも `npm install` なしで動作
-  - `references/setup.md` を追加（Unsplash API キーの設定方法をスキル内に集約）
-  - アップデートスクリプト（`update.sh` / `update.ps1`）を新しいスクリプト構成に対応
-
-- 2026年 4月 9日:
-  - `SessionStart` フックを追加。クラウド環境（`$CLAUDE_CODE_REMOTE = "true"`）でのみ `npm install` を自動実行するよう設定
-  - `node install` 不要にしていたが、Claude Codeクラウド環境では、プロキシを使う必要があるため、 `undici` を使い対応するように変更
-  - ただし `unsplash-search.js` の `undici` を動的インポートに変更し、`npm install` 不要でも動作するよう改善
-  - `package.json` に `"type": "module"` を追加し、Node.js の警告を解消
-  - アップデートスクリプト（`update.sh` / `update.ps1`）で `package.json` / `package-lock.json` を削除せず、最新版をダウンロードするよう変更
-- 2026年 4月 7日:
-  - `one-page-site-builder` スキルを追加（ワンページサイトの技術スタック・HTML 構造・ナビ仕様・画像最適化方針を集約）
-  - CLAUDE.md を整理し、詳細仕様はスキル側に委譲するシンプルな構成に刷新
-- 2026年 3月10日:
-  - 外部依存（Node.js パッケージ）を完全撤廃。`package.json`, `scripts/install_pkgs.sh` を削除
-  - `unsplash-search.js` を `.claude/skills/unsplash-image-finder/` に統合（外部依存ゼロで動作）
-  - アップデート方式をワンライナーに刷新（`scripts/update.sh` / `update.ps1`）
-- 2026年 2月24日:
-  - Claude Code Desktop のプレビュー機能で利用できるように、 launch.json を追加
-- 2026年 2月6日:
-  - 講座のURLを、cwm.toiee.jp にドメインを変更したこと伴う修正（ダミー画像のリンク先）
-  - CLAUDE.md の冗長性の修正
-- 2026年 1月19日:
-  - Unsplash画像検索を Sub Agent ではなく、Skillに移行（これにより、コンテキストの消費を抑え、動作も軽快になる）
-- 2025年 12月26日:
-  - .gitignore に、`.playwright-mcp` 一時フォルダを追加し、リポジトリから除外されるようにした
-- 2025年 12月23日:
-  - TailwindCSS v4.1 の設定をより確実に行われるように、CLAUDE.md を修正
-  - ナビゲーションがより確実に実装されやすいように技術仕様、デザインについての方針を明確に記述(CLAUDE.md)
-- 2025年 11月26日:
-  - Claude Code on the Web (Sandbox)では、Unsplashの画像検索ができない問題を解決（Proxyを使うように修正）
-  - 画像検索のフォールバックが、フォールバックになっていない（エラーする画像URL）ので、独自で用意したダミー画像URLを指定するようにした（ https://cwm.toiee.jp/images/dummy.jpg )
-- 2025年 11月 5日:
-  - scripts/install_pkg.sh をローカルでは実行しない（Claude Code on the Webでは実行）ように設定
-  - scripts/install_pkg.sh に実行権限を与えるように初期設定のガイドを修正
-- 2025年 10月 27日:
-  - `.rgignore` を使って、prompt.md などを検索対象除外から除外（これで、Claude Code で @ で指定できるようになった）
-  - README.md を Cloudflareの説明などに変更（Unsplashの設定も推奨に設定、環境変数対応についても記載など）
 
 **アップデート方法は、末尾をご覧ください**
 
@@ -271,22 +200,39 @@ claude1page/
 - `wrangler.jsonc` の `"name": "rename-me"` を、その名前に書き換える。Claude Code を起動すると「公開名が未設定です」と提案してくれるので、了承すれば書き換えてくれます
 - 独自ドメインを使う場合も、公開名は管理用の名前として残ります
 
-### (2) Cloudflare に接続する
+### (2) PC から 1 回目の公開をする
 
-1. Cloudflare にログイン
-2. コンピューティングとAI > Workers & Pages を選択
-3. アプリケーションを作成 > 「リポジトリをインポート」（Git リポジトリに接続）を選び、GitHub のリポジトリを選ぶ
-4. プロジェクト名（Worker 名）を、`wrangler.jsonc` の `name` と同じにする
-5. ビルドコマンドは空のまま、デプロイコマンドは `npx wrangler deploy` のままでデプロイ
-6. その後、必要に応じて、カスタムドメインなどを設定する
+**最初の公開は、GitHub からではなく PC から行います。** Cloudflare の画面で GitHub のリポジトリを読み込むところから始めると、エラーも出ずにビルドが止まってしまうことがあります。先に PC から公開して Worker を作っておき、あとから GitHub をつなぐと確実です。
+
+1. Cloudflare にログインする（ブラウザが開くので、許可する）
+   ```bash
+   npx wrangler login
+   ```
+2. D1・R2 を使うシステムを付けている場合は、先に「(4) システムを付けたときに Cloudflare 側でやること」のうち、D1・R2 の作成とテーブルの反映を済ませる（データベースが無いまま公開すると失敗します）
+3. 公開する
+   ```bash
+   npx wrangler deploy
+   ```
+4. 表示された `https://<公開名>.<アカウント名>.workers.dev` を開いて確認する
+
+「Cloudflare に公開して」と Claude に頼めば、ここまでを案内しながら進めてくれます。
+
+### (3) GitHub とつなぐ
+
+1. GitHub にリポジトリを作り、push しておく
+2. Cloudflare の **Workers & Pages** で、(2) で作られた Worker（公開名と同じ名前）を開く
+3. **設定（Settings）> ビルド（Builds）> 接続（Connect）** を選び、GitHub のリポジトリを選ぶ（「アプリケーションを作成」から新しく作らない）
+4. ビルドコマンドは空のまま、デプロイコマンドは `npx wrangler deploy` のままで保存する
+5. 何かを push して、ビルドが成功することを確かめる
+6. 必要に応じて、カスタムドメインなどを設定する
 
 以後は GitHub に push するたびに自動で公開されます。
 
-### (3) システムを付けたときに Cloudflare 側でやること
+### (4) システムを付けたときに Cloudflare 側でやること
 
 D1・R2・管理画面などを使うと、push だけでは済まない作業が出てきます。Claude が完了時に「Cloudflare 側でやること」として伝えるので、その通りに進めてください。主なものは次の通りです。
 
-- **D1・R2 の作成**: `npx wrangler login` でログインしたあと、Claude の案内に従って作成する（初回だけ）
+- **D1・R2 の作成**: `npx wrangler login` でログインしたあと、Claude の案内に従って作成する（初回だけ。作った ID は `wrangler.jsonc` に書いて push する）
 - **テーブルの変更の反映**: `npm run db:migrate:remote`（テーブルを追加・変更したときに毎回。push だけでは本番に反映されません）
 - **秘密情報の登録**: `npx wrangler secret put <名前>`、またはダッシュボードの「設定 > 変数とシークレット」
 - **管理画面のログイン設定**: Cloudflare Access を使う場合は、Zero Trust の画面で `/admin` と `/api/admin` を守る設定をする

@@ -53,6 +53,8 @@ D1・R2 などを使った小さなシステム（お知らせ、シンプルな
 - 標準のデプロイコマンドは D1 のマイグレーションを実行しないので、デプロイ前に `d1 migrations apply --remote` を流す `deploy` スクリプトを用意する
 - 初回だけ必要な D1・R2 の作成と `database_id` の書き込みを README とスキルに書く
 - wrangler が ID なしでリソースを自動作成できるかは未確認。Cloudflare のドキュメントで確かめてから採用を決める
+- → 実装: 初回は PC から `npx wrangler deploy` で公開し、できた Worker に「設定 > ビルド > 接続」で GitHub をつなぐ順にした（README の「Cloudflare Workers での公開」、スキルの「本番への反映」）。Cloudflare の画面で GitHub から始めると、エラーログも出ずに 5 分以上ビルドして止まった経験があるため。PC から先に公開すると、Worker 名が `name` どおりにでき、D1・R2・秘密情報も先に用意でき、エラーがあればその場で見える
+- `deploy` スクリプトに `migrations apply --remote` を組み込む案は見送り。Workers Builds の API トークンに D1 の権限が要るかなど未確認で、ビルドが止まる原因を増やしたくないため。テーブル変更は、これまで通りユーザーが `npm run db:migrate:remote` を実行する
 
 ### 7. CLAUDE.md・README・その他
 
@@ -66,7 +68,7 @@ D1・R2 などを使った小さなシステム（お知らせ、シンプルな
 
 1. 1〜4（Worker が動く最小構成）— 済
 2. 5（スキル）と 7（CLAUDE.md・README・update スクリプト）— 済
-3. 6（デプロイ手順）— 未着手
+3. 6（デプロイ手順）— 済（Workers Builds での実際の公開は、派生リポジトリで確認する）
 
 ## 実装中に分かったこと
 
