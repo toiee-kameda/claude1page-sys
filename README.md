@@ -14,6 +14,9 @@ This is an unofficial, community-created project and is not affiliated with, end
 
 ## 更新履歴
 
+<!-- テンプレートの管理者へ: この更新履歴は、利用者のリポジトリで Claude Code がアップデートを取り込むときの手がかりになります。
+     各項目には「何を変えたか」に加えて、既存のリポジトリでどう取り込めばよいか（例: wrangler.jsonc の既存の設定に ○○ を足す、スキルを置き換える）を書いてください。 -->
+
 - 2026年10月24日:
   - 小さなシステム（お知らせ・予約など）を載せられるよう、**Worker 付きの構成**に変更。ページは `public/` から静的に配信し、`/api/*` と `/admin/*` だけ `src/index.ts` で処理する（`wrangler.jsonc` の `run_worker_first`）
   - `package.json` を復活（`wrangler` を開発用に追加）。Worker のプログラムをローカルで動かし、D1・R2 を使うために必要なため、「外部依存ゼロ」の方針から変更した。最初に `npm install` が必要
@@ -22,7 +25,7 @@ This is an unofficial, community-created project and is not affiliated with, end
   - D1・R2 の設定例を `wrangler.jsonc` にコメントで追加
   - `worker-system-builder` スキルを追加。要件の聞き取り、D1・R2 の使い方、管理画面の認証（Cloudflare Access / パスワード）、秘密情報、公開フォームの守り、個人情報、確認手順をまとめた。作例として「お知らせ」「シンプルな予約」を同梱（DB 定義は固定せず、一例として示す）
   - CLAUDE.md を「ワンページ＋小さなシステム」の前提に書き換え、セキュリティのルールを追加
-  - アップデートスクリプトの取得元をこのリポジトリ（`toiee-kameda/claude1page-sys`）に変更。`package.json` を削除しないようにし、`wrangler.jsonc`・`package.json`・`tsconfig.json`・`src/index.ts` は**まだ無い場合だけ**追加する
+  - アップデートスクリプト（`scripts/update.sh` / `update.ps1`）を廃止。このテンプレートから作るリポジトリは今の状態が出発点になるため、元の claude1page 向けの移行処理は不要になった。今後の更新は、README の「アップデート方法」にある指示を Claude Code に渡して取り込む（あなたが加えた変更と合わせる判断が必要なため）
   - `.gitignore` で `.dev.vars.example` を除外しないようにした
 
 - 2026年10月19日:
@@ -217,9 +220,6 @@ claude1page/
 ├── public/             # 公開用ディレクトリ（成果物はここに作られる）
 │   └── assets/         # CSS、JS、画像、フォントなどの静的ファイル
 ├── project-docs/       # プロジェクト関連ドキュメント
-├── scripts/            # アップデートスクリプト
-│   ├── update.sh       # macOS/Linux用
-│   └── update.ps1      # Windows用
 ├── .claude/
 │   ├── settings.json   # Claude Code設定（権限の許可リスト）
 │   ├── launch.json     # プレビュー用サーバー設定（wrangler dev、ポート8787）
@@ -296,39 +296,25 @@ D1・R2・管理画面などを使うと、push だけでは済まない作業�
 
 ## アップデート方法
 
-このテンプレートリポジトリから作成した新しいリポジトリには、自動でアップデートはされません（通知も）。
+このテンプレートから作ったリポジトリには、テンプレートの更新は自動では届きません（通知もありません）。
 
-時々、Claude Code の新しい機能に対応させるために、アップデートを行うことがあります。手順は、以下の通りです。
+テンプレートは、Claude Code の新しい機能や Cloudflare の変更に合わせて更新することがあります。取り込むときは、**Claude Code に次の指示を貼り付けて頼んでください**。アップデート用のスクリプトはありません。システムを作ったあとのリポジトリでは、ファイルを置き換えるだけでは済まず、あなたが加えた変更と合わせる判断が必要になるためです。
 
-### (1) アップデートスクリプトを実行
+```
+テンプレート（https://github.com/toiee-kameda/claude1page-sys）の最新版を、このリポジトリに取り込んでください。
 
-プロジェクトのルートディレクトリで、以下のワンライナーを実行してください。
-
-**macOS / Linux:**
-```bash
-curl -fsSL https://raw.githubusercontent.com/toiee-kameda/claude1page-sys/main/scripts/update.sh | bash
+- テンプレートの main を、作業用の一時フォルダ（このリポジトリの外）に取得する
+- このリポジトリの README の「更新履歴」で一番新しい日付を確認し、テンプレートの更新履歴のうち、それより後の項目を取り込む対象にする。対象が無ければ、そう伝えて終わる。README に更新履歴が残っていなければ、どの時点から取り込むか私に聞く
+- 作業用のブランチを作る
+- 取り込む前に、何をどう変えるかを一覧にして説明し、私の了承を得る
+- CLAUDE.md・.claude/settings.json・.claude/ のスキル・.gitignore は、このリポジトリで加えた変更を残したまま、新しい内容を合わせる。置き換えると私の変更が消える場合は、先に知らせる
+- wrangler.jsonc の公開名（name）と D1・R2 などの設定、src/・migrations/・public/・project-docs/ の中身は変えない（更新履歴にこれらへの追記の指示がある場合は、既存の設定に足す形で行い、説明に含める）
+- README は、更新履歴とアップデート方法などテンプレート由来の部分をテンプレートに合わせる。私が書き足した部分は残す
+- 取り込んだら npm install・npm run types・npm run check を実行し、プレビューで表示と /api の動作を確認する
+- 終わったら、変わった点を一覧にして伝え、コミットしてよいか聞く
 ```
 
-**Windows (PowerShell):**
-```powershell
-irm https://raw.githubusercontent.com/toiee-kameda/claude1page-sys/main/scripts/update.ps1 | iex
-```
-
-### (2) 変更点をチェック
-
-ソースコード管理などで、変更されたファイルをチェックしてください。もし、あなたが意図的に変更したものを上書きしているなら、以前のものと今のものを比較しながら、調整してください。
-
-アップデートで上書きされるのは以下のファイルです。カスタマイズしている場合は、ご自身の変更を再反映してください。
-
-- `CLAUDE.md`
-- `README.md`
-- `.claude/settings.json`
-- `.claude/launch.json`
-- `.gitignore`
-- `.vscode/settings.json`
-- スキル（`.claude/skills/` 配下）
-
-`wrangler.jsonc`・`package.json`・`tsconfig.json`・`src/` は上書きされません（まだ無い場合だけ追加されます）。アップデート後に `npm install` と `npm run types` を実行してください。
+取り込みは作業用のブランチで行われるので、うまくいかなかったときは、そのブランチを捨てれば元に戻せます。
 
 ## ライセンス
 
