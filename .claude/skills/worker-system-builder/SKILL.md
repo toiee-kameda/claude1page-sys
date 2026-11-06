@@ -126,7 +126,7 @@ SQL のルール:
 ## 本番への反映
 
 - **まだ一度も公開していないリポジトリでは、GitHub 連携より先に PC から公開する。** Cloudflare の画面で GitHub のリポジトリを読み込むところから始めると、エラーも出ずにビルドが止まることがある。次の順に進める（README の「Cloudflare Workers での公開」と同じ）
-  1. ユーザーに `npx wrangler login` を実行してもらう（ブラウザでの許可が必要）
+  1. ユーザーに `npx wrangler login` を実行してもらう（ブラウザでの許可が必要）。`npx wrangler whoami` でアカウントが複数表示されたら、どれに公開するかをユーザーに確認し、`wrangler.jsonc` に `account_id` を書く（環境変数 `CLOUDFLARE_ACCOUNT_ID` でもよい）。指定しないと、確認なしで実行するコマンドが失敗する
   2. D1・R2 を使うなら作成し、ID を `wrangler.jsonc` に書く。`npm run db:migrate:remote` でテーブルを作る
   3. `npx wrangler deploy` で公開する（本番への公開なので、実行前にユーザーの了承を得る）
   4. 秘密情報があれば `npx wrangler secret put <名前>` で登録してもらう。Worker ができてから行う（値はチャットに貼ってもらわない）
